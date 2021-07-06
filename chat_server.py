@@ -156,51 +156,57 @@ def FileInfoGet():
         except Exception as e:
             print(e)
             sock.close()
-    sock.close()
         
 
 def FileInfo():
-
-    UDP_IP = ""
-    IN_PORT = 10011
-    folder = os.getcwd()
-
     try:
-        sock = socket(AF_INET, SOCK_DGRAM)
-        sock.bind((UDP_IP, IN_PORT)) #서버
+        UDP_IP = ""
+        IN_PORT = 10012
+        folder = os.getcwd()
+
+        try:
+            sock = socket(AF_INET, SOCK_DGRAM)
+            sock.bind((UDP_IP, IN_PORT)) #서버
+        except Exception as e:
+            print(e)
+            pass
+
+        print('Thread For FileInfo Start')
+
+        while True:
+            i = 0
+            info = []
+            data, addr = sock.recvfrom(1024)
+            print(str(data) + str(addr))
+            try:
+                msg = data.decode('utf-8')
+
+                if(msg != 'f'):
+                    print('data 받음 : ' + data.decode('utf-8'))
+                    ## 여기가 업로드 신호 받는 곳 예정 ##
+                else:
+                    for filename in os.listdir(folder + '\\Files\\'):
+                        ext=filename.split('.')[-1]
+                        i += 1
+                        info.append(filename)
+                    nm = str(i).encode()
+                    sock.sendto(nm, addr)
+                    for s in info :
+                        try:
+                            print('정보 보내기 시작')
+                            sock.sendto(s.encode(), addr)
+                            print(s)
+                        except Exception as e:
+                            print(e)
+                            sock.close()
+                            break
+
+            except Exception as e:
+                print(e)
+                pass
     except Exception as e:
         print(e)
         pass
-
-    print('Thread For FileInfo Start')
-
-    while True:
-        i = 0
-        info = []
-        data, addr = sock.recvfrom(1024)
-        msg = data.decode('utf-8')
-
-        if(msg != 'f'):
-            print('data 받음 : ' + data.decode('utf-8'))
-            ## 여기가 업로드 신호 받는 곳 예정 ##
-        else:
-            for filename in os.listdir(folder + '\\Files\\'):
-                ext=filename.split('.')[-1]
-                i += 1
-                info.append(filename)
-            nm = str(i).encode()
-            sock.sendto(nm, addr)
-            for s in info :
-                try:
-                    print('정보 보내기 시작')
-                    sock.sendto(s.encode(), addr)
-                    print(s)
-                except Exception as e:
-                    print(e)
-                    sock.close()
-                    break
-    sock.close()
-
 
 def Send(group, send_queue):
     print('Thread Send for chat Start')

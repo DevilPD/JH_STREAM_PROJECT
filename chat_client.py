@@ -169,12 +169,11 @@ def FileAns(sock, UDP_IP, IN_PORT):
 
 def FileCheck(sock, UDP_IP, IN_PORT):
 
-    folder = os.getcwd()
-
     while True:
         try:
             cnt_u = 0
             data = check_queue_f.get() # check_queue에 'f'를 넣으면 서버 측 Files 폴더 내 파일을 불러옴
+            print(data)
             msg = data.encode()
             sock.sendto(msg, (UDP_IP, IN_PORT))
             nm, addr_u = sock.recvfrom(1024)
@@ -187,13 +186,12 @@ def FileCheck(sock, UDP_IP, IN_PORT):
                     msg = data.decode('utf-8')
                     print(msg)
                     list_queue.put(msg)
-                    # print(list_queue.get(msg))
                     data = 0
                 else:
                     break
         except Exception as e:
             print(e)
-            break
+            pass
 
 def send(sock):
 
@@ -220,7 +218,7 @@ def file_conn():
     try:
         global host
         UDP_IP = host
-        IN_PORT = 10011
+        IN_PORT = 10012
         IN_PORT_2 = 30033
 
         check_socket = socket(AF_INET, SOCK_DGRAM)
@@ -236,6 +234,7 @@ def file_conn():
         uploader_s.start()
         checker.start()
         answer.start()
+
     except Exception as e:
         print(e)
         pass
